@@ -9,6 +9,7 @@ const { check } = require("express-validator");
 
 const { crearUsuario, loginUsuario, renovarToken } = require("../controllers/authController");
 const { validarCampos } = require("../middlewares/validar-campos");
+const { validarToken } = require("../middlewares/validar-token");
 
 router.post("/new", [
     check("name", "El nombre es obligatorio").not().isEmpty(),
@@ -24,6 +25,6 @@ router.post("/", [
     validarCampos
 ], loginUsuario);
 
-router.get("/renew", renovarToken);
+router.get("/renew", validarToken, renovarToken);
 
 module.exports = router;

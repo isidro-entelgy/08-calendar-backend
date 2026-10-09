@@ -2,6 +2,7 @@ const { request, response } = require("express");
 const { validationResult } = require("express-validator");
 const Usuario = require("../model/Usuario");
 const bcrypt = require("bcryptjs");
+const { generarJWT } = require("../helpers/generarJWT");
 
 const crearUsuario = async (req = request, res = response) => {
 
@@ -26,10 +27,14 @@ const crearUsuario = async (req = request, res = response) => {
 
         usuario.save();
 
+        //Generar Token
+        const token = await generarJWT(usuario.id, usuario.name);
+
         res.status(201).json({
             respuesta: true,
             uid: usuario.id,
             name: usuario.name,
+            token,
             msg: "Registro Nuevo"
         });
     }
@@ -63,10 +68,15 @@ const loginUsuario = async (req = request, res = response) => {
                 msg: "Error en email o contraseña"
             });
         }
+
+        //Generar Token
+        const token = await generarJWT(usuario.id, usuario.name);
+
         res.status(201).json({
             respuesta: true,
             uid: usuario.id,
             name: usuario.name,
+            token,
             msg: "Acceso usuario OK"
         });
     }
@@ -79,9 +89,17 @@ const loginUsuario = async (req = request, res = response) => {
     }
 }
 
-const renovarToken = (req = request, res = response) => {
+const renovarToken = async (req = request, res = response) => {
+    const { uid, name } = req;
+
+    //Generar Token
+    const token = await generarJWT(uid, name);
+
     res.json({
         respuesta: true,
+        uid,
+        name,
+        token,
         msg: "Renovar Token"
     });
 }
